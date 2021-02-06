@@ -1,0 +1,8 @@
+- name: system setup | development packages | install packages
+  tags: dev,development,packages,ruby
+  package:
+    name:
+      - git
+      - rbenv
+      - bundler
+    state: latest

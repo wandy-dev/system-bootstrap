@@ -1,0 +1,40 @@
+- name: users | andy | create personal config directories
+  tags: dotfiles,dotfiles-andy
+  file:
+    path: /home/andy/{{ item.dir }}
+    state: directory
+    owner: andy
+    group: andy
+    mode: 0700
+  with_items:
+    - { dir: .config }
+    - { dir: .local }
+    - { dir: .local/share }
+    - { dir: .local/share/applications }
+    - { dir: bin }
+    - { dir: documents }
+    - { dir: downloads }
+    - { dir: pictures }
+    - { dir: repos }
+    - { dir: repos/wandy-dev }
+    - { dir: videos }
+    - { dir: wallpapers }
+
+- name: users | andy | copy user-dirs.dirs
+  tags: dotfiles,dotfiles-andy
+  copy:
+    src: users/andy/user-dirs.dirs
+    dest: /home/andy/.config/user-dirs.dirs
+    owner: andy
+    group: andy
+    mode: 0600
+  notify: update_xdg
+
+# - name: users | andy | copy profile image
+#   tags: dotfiles,dotfiles-andy
+#   copy:
+#     src: users/andy/profile_image.png
+#     dest: /var/lib/AccountsService/icons/andy.png
+#     owner: root
+#     group: root
+#     mode: 0644

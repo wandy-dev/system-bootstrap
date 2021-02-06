@@ -1,0 +1,128 @@
+- name: users | andy | create group
+  tags: groups,andy,users
+  group:
+    name: andy
+    state: present
+
+- name: users | andy | create user
+  tags: andy,sudo,users
+  user:
+    name: andy
+    group: andy
+    groups: ansible,{{ sudo_group }}
+    state: present
+    comment: "Andy DeVane"
+    password: "{{ andy_passwd }}"
+    shell: /bin/bash
+
+- name: users | andy | andy | add sudoers file
+  tags: andy,settings,sudo,system,users
+  copy:
+    src: users/sudoers_andy
+    dest: /etc/sudoers.d/andy
+    owner: root
+    group: root
+    mode: 0440
+
+- name: users | andy | create .ssh directory
+  tags: dotfiles,andy,ssh,users
+  file:
+    path: "{{ item.dir }}"
+    state: directory
+    owner: andy
+    group: andy
+    mode: 0700
+  with_items:
+    - { dir: '/home/andy/.ssh' }
+
+# - name: users | andy | add public key
+#   tags: dotfiles,andy,ssh,ssh-keys,users
+#   authorized_key:
+#     user: andy
+#     key: "{{ item }}"
+#   with_file:
+#     - users/andy/ssh/andy_id_ed25519.pub
+
+- name: users | andy | create config directories
+  tags: dotfiles,andy,tmux,users,vim,zsh
+  file:
+    path: /home/andy/{{ item.dir }}
+    state: directory
+    owner: andy
+    group: andy
+    mode: 0700
+  with_items:
+    - { dir: '.config' }
+    - { dir: '.tmux' }
+    - { dir: '.tmux/config' }
+    - { dir: '.tmux/plugins' }
+    - { dir: '.vim' }
+    - { dir: '.zsh' }
+
+# - name: users | andy | clone tmux-completion plugin repository
+#   tags: dotfiles,andy,users,tmux
+#   git:
+#     repo: https://github.com/srsudar/tmux-completion.git
+#     dest: /home/andy/.tmux/plugins/completion
+#     force: yes
+#   notify: update_tmux_plugin_perms
+
+- name: users | andy | clone tmux-continuum plugin repository
+  tags: dotfiles,andy,users,tmux
+  git:
+    repo: https://github.com/tmux-plugins/tmux-continuum
+    dest: /home/andy/.tmux/plugins/continuum
+    force: yes
+  notify: update_tmux_plugin_perms
+
+- name: users | andy | clone tmux-resurrect plugin repository
+  tags: dotfiles,andy,users,tmux
+  git:
+    repo: https://github.com/tmux-plugins/tmux-resurrect
+    dest: /home/andy/.tmux/plugins/resurrect
+    force: yes
+  notify: update_tmux_plugin_perms
+
+# - name: users | andy | copy individual zsh config files
+#   tags: dotfiles,andy,users,zsh
+#   copy:
+#     src: users/andy/zsh/{{ item.src }}
+#     dest: /home/andy/.zsh/{{ item.src }}
+#     owner: andy
+#     group: andy
+#     mode: 0600
+#   with_items:
+#     - { src: 'aliases.zsh' }
+#     - { src: 'bindkey.zsh' }
+#     - { src: 'completion.zsh' }
+#     - { src: 'exports.zsh' }
+#     - { src: 'functions.zsh' }
+#     - { src: 'history.zsh' }
+#     - { src: 'path.zsh' }
+#     - { src: 'plugins.zsh' }
+#     - { src: 'prompt.zsh' }
+#     - { src: 'setopt.zsh' }
+#     - { src: 'theming.zsh' }
+
+# - name: users | andy | install pathogen
+#   tags: dotfiles,andy,users,vim
+#   copy:
+#     src: users/andy/vim/{{ item.src }}
+#     dest: "{{ item.dest }}"
+#     owner: andy
+#     group: andy
+#     mode: 0700
+#   with_items:
+#     - { src: 'pathogen.vim', dest: '/home/andy/.vim/autoload/pathogen.vim' }
+
+- name: users | andy | checkout git repositories
+  tags: git,users,andy
+  become: yes
+  git:
+    repo: "{{ item.repo }}"
+    dest: "{{ item.dest }}"
+    force: yes
+  with_items:
+    - { repo: 'https://github.com/wandy-dev/wads.git', dest: '/home/andy/repos/wandy-dev/wads' }
+    - { repo: 'https://github.com/wandy-dev/Dotfiles.git', dest: '/home/andy/repos/wandy-dev/dotfiles' }
+
