@@ -1,6 +1,5 @@
 # tasks to complete before running roles
 - hosts: all
-  connection: local
   tags: always
   become: true
   pre_tasks:
@@ -12,21 +11,18 @@
 
 # run roles
 - hosts: all
-  connection: local
   tags: base
   become: true
   roles:
     - base
 
 - hosts: workstation
-  connection: local
   tags: workstation
   become: true
   roles:
     - workstation
 
 - hosts: server
-  connection: local
   tags: server
   become: true
   roles:
